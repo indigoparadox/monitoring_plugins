@@ -14,14 +14,18 @@ from cmk.gui.plugins.wato import (
 def _parameter_valuespec_mk_git():
     return Dictionary(
         elements=[
-            ("new_warn", 
-                Integer( title=_( 'Warning above untracked files' ) )),
-            ("new_crit",
-                Integer( title=_( 'Critical above untracked files' ) )),
-            ("mod_warn", 
-                Integer( title=_( 'Warning above modified files' ) )),
-            ("mod_crit",
-                Integer( title=_( 'Critical above modified files' ) ))
+            ("new_warn", Integer(
+                title=_( 'Warning above untracked files' ),
+                default_value=1 )),
+            ("new_crit", Integer(
+                title=_( 'Critical above untracked files' ),
+                default_value=5 )),
+            ("mod_warn", Integer(
+                title=_( 'Warning above modified files' ),
+                default_value=1 )),
+            ("mod_crit", Integer(
+                title=_( 'Critical above modified files' ),
+                default_value=5 ))
         ],
     )
 
