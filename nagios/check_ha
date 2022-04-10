@@ -2,6 +2,7 @@
 
 import requests
 import argparse
+import sys
 
 def descend_obj( path, json_obj ):
 
@@ -27,9 +28,8 @@ def ha_api_fetch( url, bearer ):
 
     return response.json()
 
-
 def main():
-    
+
     parser = argparse.ArgumentParser()
 
     parser.add_argument( '-b', '--bearer' )
@@ -38,11 +38,22 @@ def main():
 
     parser.add_argument( '-p', '--json-path' )
 
+    parser.add_argument( '-c', '--critical' )
+
+    parser.add_argument( '-w', '--warning' )
+
     args = parser.parse_args()
 
     json_obj = ha_api_fetch( args.url, args.bearer )
     json_obj = descend_obj( args.json_path.split( '/' ), json_obj )
+
     print( json_obj )
+    if json_obj == args.warning:
+        sys.exit( 1 )
+    elif json_obj == args.critical:
+        sys.exit( 2 )
+    else:
+        sys.exit( 0 )
 
 if '__main__' == __name__:
     main()
