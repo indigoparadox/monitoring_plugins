@@ -1,0 +1,49 @@
+#!/usr/bin/env python
+
+import requests
+import argparse
+
+def descend_obj( path, json_obj ):
+
+    ''' Descend into the given JSON object according to the given path and
+    return what the path refers to inside the object. '''
+
+    while [] != path:
+        json_obj = json_obj[path[0]]
+        path = path[1:]
+
+    return json_obj
+
+def ha_api_fetch( url, bearer ):
+
+    ''' Request the object at the given Home Assistant API endpoint URL. '''
+
+    headers = {
+        'Authorization': 'Bearer {}'.format( bearer ),
+        'content-type': 'application/json'
+    }
+
+    response = requests.get( url, headers=headers )
+
+    return response.json()
+
+
+def main():
+    
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument( '-b', '--bearer' )
+
+    parser.add_argument( '-u', '--url' )
+
+    parser.add_argument( '-p', '--json-path' )
+
+    args = parser.parse_args()
+
+    json_obj = ha_api_fetch( args.url, args.bearer )
+    json_obj = descend_obj( args.json_path.split( '/' ), json_obj )
+    print( json_obj )
+
+if '__main__' == __name__:
+    main()
+
