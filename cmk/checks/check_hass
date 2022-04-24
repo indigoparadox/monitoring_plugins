@@ -1,0 +1,15 @@
+#!/usr/bin/env python
+
+def check_hass_arguments( params ):
+
+    args = ''
+
+    return args
+
+active_check_info['hass'] = {
+    'command_line': '$USER2$/check_hass $ARG1$',
+    'argument_function': check_hass_arguments,
+    'service_description': lambda args: args['description'],
+    'has_perfdata': False
+}
+
