@@ -1,0 +1,47 @@
+#!/bin/bash
+# MQTT
+
+MQTT_SERVER="$NOTIFY_PARAMETER_1"
+MQTT_PORT="$NOTIFY_PARAMETER_2"
+MQTT_USER="$NOTIFY_PARAMETER_3"
+MQTT_PASSWORD="$NOTIFY_PARAMETER_4"
+MQTT_CAFILE="$NOTIFY_PARAMETER_6"
+
+# Replace spaces/slashes with underscores in topic service/host.
+MQTT_TOPIC_SERVICE="${NOTIFY_SERVICEFORURL//\%20/_}"
+MQTT_TOPIC_SERVICE="${MQTT_TOPIC_SERVICE//\//_}"
+if [ -z "$MQTT_TOPIC_SERVICE" ]; then
+   # If no topic, then this must be a host notification.
+   MQTT_TOPIC_SERVICE="Host"
+fi
+MQTT_TOPIC_HOST="${NOTIFY_HOSTFORURL//\%20/_}"
+
+MQTT_TOPIC="$NOTIFY_PARAMETER_5/$MQTT_TOPIC_HOST/$MQTT_TOPIC_SERVICE"
+
+# Strip out irrelevant variables and pack relevant ones into a JSON object.
+MQTT_MSG=`env | grep "^NOTIFY" | \
+   grep -v "^NOTIFY_PARAMETER" | \
+   grep -v "^NOTIFY_SERVICEFORURL" | \
+   grep -v "^NOTIFY_HOSTFORURL" | \
+   grep -v "^NOTIFY_CONTACT" | \
+   grep -v "^NOTIFY_HOST_SL" | \
+   grep -v "^NOTIFY_SERVICE_SL" | \
+   grep -v "^NOTIFY_LOG" | \
+   grep -v "^NOTIFY_HOST_EC_CONTACT" | \
+   grep -v "^NOTIFY_SERVICE_EC_CONTACT" | \
+   grep -v "^NOTIFY_OMD_ROOT" | \
+   jq -nR '
+   def trim: sub("^ +";"") | sub(" +$";"");
+   [inputs
+      | select(index("="))
+      | sub("\r$"; "")
+      | capture( "(?<key>[^=]*)=(?<value>.*)" )
+      | ( (.key |= trim) | (.value |= trim)) ]
+      | from_entries'`
+
+# Send notification to MQTT server.
+mosquitto_pub -h "$MQTT_SERVER" -p "$MQTT_PORT" \
+   -u "$MQTT_USER" -P "$MQTT_PASSWORD" \
+   --cafile "$MQTT_CAFILE" \
+   -t "$MQTT_TOPIC" -m "$MQTT_MSG"
+
