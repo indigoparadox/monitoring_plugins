@@ -35,7 +35,7 @@ rulespec_registry.register(
         group=RulespecGroupCheckParametersOperatingSystem,
         match_type="dict",
         parameter_valuespec=_parameter_valuespec_mk_git,
-        title=lambda: _( 'git respository changes' )
+        title=lambda: _( 'git repository changes' )
     )
 )
 
