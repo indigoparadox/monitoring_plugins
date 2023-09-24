@@ -82,7 +82,8 @@ def check_mk_snmpdio( item, params, section ):
 
     yield Metric( "read_bytes_sec", ior_diff )
     yield Metric( "write_bytes_sec", iow_diff )
-    yield Result( state=State.OK, summary='Read: {}/s, Write: {}/s'.format( render.bytes( ior_diff ), render.bytes( iow_diff ) ) )
+    yield Result( state=State.OK, summary='Read: {}, Write: {}'.format(
+        render.iobandwidth( ior_diff ), render.iobandwidth( iow_diff ) ) )
 
 register.check_plugin(
     name="mk_snmpdio",

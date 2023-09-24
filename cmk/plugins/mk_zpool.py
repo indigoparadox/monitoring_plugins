@@ -86,7 +86,8 @@ def check_mk_zpool_io( idx, params, section ):
 
     yield Metric( "zpool_read_bytes_sec", ior_diff )
     yield Metric( "zpool_write_bytes_sec", iow_diff )
-    yield Result( state=State.OK, summary='Read: {}/s, Write: {}/s'.format( render.bytes( ior_diff ), render.bytes( iow_diff ) ) )
+    yield Result( state=State.OK, summary='Read: {}, Write: {}'.format(
+        render.iobandwidth( ior_diff ), render.iobandwidth( iow_diff ) ) )
 
 def check_mk_zpool( item, params, section ):
 
