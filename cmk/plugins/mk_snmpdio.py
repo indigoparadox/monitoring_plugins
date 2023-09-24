@@ -46,6 +46,8 @@ def check_mk_snmpdio( item, params, section ):
     iow = float( section[idx][3] )
     time_now = time.time()
 
+    # TODO: Handle missing device?
+
     pv = get_value_store()
     pv_key_r = 'snmpdio_pv_{}_read'.format( device )
     pv_key_w = 'snmpdio_pv_{}_write'.format( device )
@@ -64,7 +66,14 @@ def check_mk_snmpdio( item, params, section ):
     iow_diff = 0
     if 0 < time_diff:
         ior_diff = ior - pv[pv_key_r]
+        ior_diff = ior_diff / time_diff
+        # Handle int32 rollover?
+        if 0 > ior_diff:
+            ior_diff = 0
         iow_diff = iow - pv[pv_key_w]
+        if 0 > iow_diff:
+            iow_diff = 0
+        iow_diff = iow_diff / time_diff
 
     # Update stored values.
     pv['snmpdio_pv_time'] = time_now
@@ -73,7 +82,7 @@ def check_mk_snmpdio( item, params, section ):
 
     yield Metric( "read_bytes_sec", ior_diff )
     yield Metric( "write_bytes_sec", iow_diff )
-    yield Result( state=State.OK, summary='Read: {} b/s, Write: {} b/s'.format( ior_diff, iow_diff ) )
+    yield Result( state=State.OK, summary='Read: {}/s, Write: {}/s'.format( render.bytes( ior_diff ), render.bytes( iow_diff ) ) )
 
 register.check_plugin(
     name="mk_snmpdio",
