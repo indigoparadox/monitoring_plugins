@@ -48,8 +48,8 @@ def discover_mk_zpool( section ):
 def check_mk_zpool_io( idx, params, section ):
 
     device = section[idx][1]
-    ior = float( section[idx][2] )
-    iow = float( section[idx][3] )
+    ior = float( section[idx][3] )
+    iow = float( section[idx][4] )
     time_now = time.time()
 
     pv = get_value_store()
