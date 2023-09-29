@@ -46,10 +46,16 @@ def check_mk_snmpsmart( item, params, section ):
         if device != item:
             continue
 
+        if 'echo: write error on stdout' in section_i:
+            return
+
+        if '' in section_i:
+            continue
+
         attribute = section_i[2]
-        val_cur = int( section_i[3] )
-        val_worst = int( section_i[4] )
-        val_threshold = int( section_i[5] )
+        val_cur = int( section_i[3] ) if '' != section_i[3] else -1
+        val_worst = int( section_i[4] ) if '' != section_i[4] else -1
+        val_threshold = int( section_i[5] ) if '' != section_i[5] else -1
         val_raw = -1
         try:
             val_raw = int( section_i[6] )
@@ -59,19 +65,24 @@ def check_mk_snmpsmart( item, params, section ):
         # Evaluate thresholds.
         status_text = 'Value OK'
         status = State.OK
-        if val_worst < val_threshold:
+        if 0 <= val_worst and val_worst < val_threshold:
             status_text = 'Worst value below threshold'
             status = State.WARN
-        if val_cur < val_threshold:
+        if 0 <= val_cur and val_cur < val_threshold:
             status_text = 'Current value below threshold'
             status = State.CRIT
 
         if 0 <= val_raw:
             yield Metric( attribute, val_cur )
-        yield Result( state=status,
-            summary='{}: {} (Value: {}, Worst: {}{})'.format(
-                attribute, status_text, val_cur, val_worst,
-                ', Raw: {}'.format( val_raw ) if 0 <= val_raw else '' ) )
+
+        if 0 <= val_cur and 0 <= val_worst:
+            yield Result( state=status,
+                summary='{}: {} (Value: {}, Worst: {}{})'.format(
+                    attribute, status_text, val_cur, val_worst,
+                    ', Raw: {}'.format( val_raw ) if 0 <= val_raw else '' ) )
+        else:
+            yield Result( state=State.UNKNOWN,
+                summary='{}: Invalid value'.format( attribute ) )
 
 register.check_plugin(
     name="mk_snmpsmart",
