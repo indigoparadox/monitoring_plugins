@@ -109,16 +109,16 @@ def check_mk_snmpsmart( item, params, section ):
     for attribute in pv[item]:
         if not attribute in report_success:
             status, status_text = check_mk_snmpsmart_thresh(
-                pv[device][attribute]['value'],
-                pv[device][attribute]['val_worst'],
-                pv[device][attribute]['val_threshold'] )
+                pv[item][attribute]['value'],
+                pv[item][attribute]['val_worst'],
+                pv[item][attribute]['val_threshold'] )
             yield Result( state=status,
                 summary='{} (Cached): {} (Value: {}, Worst: {}, Raw: {})'.format(
                     attribute,
                     status_text,
-                    pv[device][attribute]['value'],
-                    pv[device][attribute]['val_worst'],
-                    pv[device][attribute]['val_raw'] ) )
+                    pv[item][attribute]['value'],
+                    pv[item][attribute]['val_worst'],
+                    pv[item][attribute]['val_raw'] ) )
 
 register.check_plugin(
     name="mk_snmpsmart",
