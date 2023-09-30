@@ -20,17 +20,18 @@ snmp_test() {
       HDD_IDX=-1
    fi
 
-	if [ $HDD_IDX -ge 0 ] && [ $HDD_IDX -lt 5 ]; then
-		echo .1.3.6.1.2.1.25.1.9.$1
-		echo gauge
+   if [ $HDD_IDX -ge 0 ] && [ $HDD_IDX -lt 5 ]; then
+      echo $SNMP_OID.$HDD_IDX
+      echo gauge
       if [ "FreeBSD" = "$OS_NAME" ]; then
-         $SMARTCTL_PATH -A $1 | grep Temperature | awk '{print $10}'
+         $SMARTCTL_PATH -A /dev/ada$HDD_IDX | \
+            grep Temperature | awk '{print $10}'
       else
          # TODO: Translate number to letter for Linux disk path.
       fi
-	else
-		echo NONE
-	fi
+   else
+      echo NONE
+   fi
 }
 
 SCRIPT_DIR_PATH="`dirname "$0"`"
