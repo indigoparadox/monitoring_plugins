@@ -1,5 +1,6 @@
 #!/bin/sh
 
+OS_NAME="`uname -o`"
 SNMP_OID=.1.3.6.1.2.1.25.1.8
 snmp_test() {
    CPU_IDX="$2"
@@ -14,7 +15,9 @@ snmp_test() {
    if [ $CPU_IDX -ge 0 ] && [ $CPU_IDX -lt 8 ]; then
       echo $1.$CPU_IDX
       echo gauge
-      sysctl -n dev.cpu.$CPU_IDX.temperature | cut -c 1,2,4
+      if [ "FreeBSD" = "$OS_NAME" ]; then
+         sysctl -n dev.cpu.$CPU_IDX.temperature | cut -c 1,2,4
+      fi
    else
       echo NONE
    fi
