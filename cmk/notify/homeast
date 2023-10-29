@@ -1,0 +1,24 @@
+#!/bin/bash
+# Home Assistant
+
+HA_URL="$NOTIFY_PARAMETER_1"
+HA_KEY="$NOTIFY_PARAMETER_2"
+HA_NOTIFY_SVC="$NOTIFY_PARAMETER_3"
+
+function ha_notif() {
+   HA_TITLE=$1
+   HA_MSG=$2
+   curl -s \
+      -H "Authorization: Bearer $HA_KEY" \
+      -H "Content-Type: application/json" \
+      -d "{\"title\": \"$HA_TITLE\", \"message\": \"$HA_MSG\"}" \
+      "$HA_URL/api/services/notify/$HA_NOTIFY_SVC"
+   echo
+}
+
+if [ "$NOTIFY_WHAT" == "SERVICE" ]; then
+	ha_notif "Check_MK Service $NOTIFY_HOSTNAME $NOTIFY_SERVICEDESC" "$NOTIFY_SHORTDATETIME $NOTIFY_NOTIFICATIONTYPE $NOTIFY_SERVICESTATE: $NOTIFY_SERVICEOUTPUT" 
+else
+	ha_notif "Check_MK Host $NOTIFY_HOSTNAME" "$NOTIFY_SHORTDATETIME $NOTIFY_NOTIFICATIONTYPE $NOTIFY_HOSTSTATE: $NOTIFY_HOSTOUTPUT"
+fi
+
