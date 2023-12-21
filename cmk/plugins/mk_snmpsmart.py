@@ -34,6 +34,8 @@ register.snmp_section(
 def discover_mk_snmpsmart( section ):
     found_devs = []
     for i in section:
+        # TODO: This crashes sometimes when i[1] is not valid?
+        # 20fd2608-9fab-11ee-8102-e45f013ccf34
         if i[1] not in found_devs:
             yield Service( item=i[1] )
             found_devs.append( i[1] )
@@ -80,10 +82,12 @@ def check_mk_snmpsmart( item, params, section ):
         val_threshold = int( section_i[5] ) if '' != section_i[5] else -1
         val_raw = int( section_i[6] )
 
-        assert 0 <= val_cur
-        assert 0 <= val_worst
-        assert 0 <= val_threshold
-        assert 0 <= val_raw
+        if val_worst < val_cur:
+            continue
+
+        if 0 > val_cur or 0 > val_worst or 0 > val_threshold:
+            continue
+
         assert '' != attribute
 
         status, status_text = \
