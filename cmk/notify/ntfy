@@ -5,21 +5,18 @@ NTFY_URL="$NOTIFY_PARAMETER_1"
 NTFY_USER="$NOTIFY_PARAMETER_2"
 NTFY_PASS="$NOTIFY_PARAMETER_3"
 
-if [ "$NOTIFY_SERVICESTATE" = "CRITICAL" ] || \
-[ "$NOTIFY_HOSTSTATE" = "DOWN" ]; then
-   NTFY_TAG="stop_sign"
-elif [ "$NOTIFY_SERVICESTATE" = "OK" ] || \
-[ "$NOTIFY_HOSTSTATE" = "UP" ]; then
-   NTFY_TAG="white_check_mark"
-elif [ "$NOTIFY_SERVICESTATE" = "WARNING" ] || \
-[ "$NOTIFY_HOSTSTATE" = "UNREACHABLE" ]; then
-   NTFY_TAG="warning"
-elif [ "$NOTIFY_SERVICESTATE" = "UNKNOWN" ] || \
-[ "$NOTIFY_HOSTSTATE" = "UNKNOWN" ]; then
-   NTFY_TAG="grey_question"
-fi
-
 if [ "$NOTIFY_WHAT" == "SERVICE" ]; then
+
+   if [ "$NOTIFY_SERVICESTATE" = "CRITICAL" ]; then
+      NTFY_TAG="stop_sign"
+   elif [ "$NOTIFY_SERVICESTATE" = "WARNING" ]; then
+      NTFY_TAG="warning"
+   elif [ "$NOTIFY_SERVICESTATE" = "OK" ]; then
+      NTFY_TAG="white_check_mark"
+   elif [ "$NOTIFY_SERVICESTATE" = "UNKNOWN" ]; then
+      NTFY_TAG="grey_question"
+   fi
+
    curl -H "X-Tags: $NTFY_TAG" -H "X-Markdown: 1" -u "$NTFY_USER:$NTFY_PASS" \
       -d "**Service $NOTIFY_HOSTNAME $NOTIFY_SERVICEDESC**
 
@@ -27,6 +24,17 @@ if [ "$NOTIFY_WHAT" == "SERVICE" ]; then
 
 $NOTIFY_NOTIFICATIONTYPE $NOTIFY_SERVICESTATE: $NOTIFY_SERVICEOUTPUT" "$NTFY_URL"
 else
+
+   if [ "$NOTIFY_HOSTSTATE" = "DOWN" ]; then
+      NTFY_TAG="stop_sign"
+   elif [ "$NOTIFY_HOSTSTATE" = "UNREACHABLE" ]; then
+      NTFY_TAG="warning"
+   elif [ "$NOTIFY_HOSTSTATE" = "UP" ]; then
+      NTFY_TAG="white_check_mark"
+   elif [ "$NOTIFY_HOSTSTATE" = "UNKNOWN" ]; then
+      NTFY_TAG="grey_question"
+   fi
+
    curl -H "X-Tags: $NTFY_TAG" -H "X-Markdown: 1" -u "$NTFY_USER:$NTFY_PASS" \
 	   -d "**Host $NOTIFY_HOSTNAME**
 
